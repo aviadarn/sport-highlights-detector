@@ -47,3 +47,17 @@ def test_extract_frame_invokes_ffmpeg(tmp_path):
     extract_frame("/v.mp4", 12.5, out,
                   runner=lambda cmd, **kw: calls.append(cmd) or subprocess.CompletedProcess(cmd, 0))
     assert calls[0][0] == "ffmpeg" and out in calls[0]
+
+
+def test_probe_duration_parses_and_defaults():
+    # Happy path: parses stdout as float
+    def fake_runner(cmd, **kw):
+        return subprocess.CompletedProcess(cmd, 0, stdout="40.0\n")
+
+    assert probe_duration("v.mp4", runner=fake_runner) == 40.0
+
+    # Error path: any exception returns 0.0
+    def boom(cmd, **kw):
+        raise RuntimeError("ffprobe failed")
+
+    assert probe_duration("v.mp4", runner=boom) == 0.0
