@@ -1232,9 +1232,7 @@ BASKETBALL_CLASSES = {
     "shooting basketball",
     "playing basketball",
     "dribbling basketball",
-    "shooting goal (soccer)",  # excluded below; kept explicit for clarity
 }
-BASKETBALL_CLASSES.discard("shooting goal (soccer)")
 
 
 def score_from_probs(label_probs: dict[str, float]) -> ActionResult:
