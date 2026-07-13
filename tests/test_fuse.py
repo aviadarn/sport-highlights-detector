@@ -15,6 +15,11 @@ def test_percentile_normalize_edge_cases():
     assert percentile_normalize([7.0]) == [0.0]
 
 
+def test_percentile_normalize_preserves_index_order():
+    # output[i] must correspond to values[i], not a sorted list
+    assert percentile_normalize([30.0, 10.0, 20.0]) == [1.0, 0.0, 0.5]
+
+
 def test_audio_composite_weighting():
     w = Weights(wL=0.4, wP=0.3, wK=0.3)
     assert abs(audio_composite(1.0, 0.0, 0.0, w) - 0.4) < 1e-9

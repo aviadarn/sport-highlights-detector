@@ -11,6 +11,7 @@ def percentile_normalize(values: list[float]) -> list[float]:
     hi = max(values)
     if hi - lo == 0:
         return [0.0] * n
+    # Ties are broken by original index (stable sort): equal inputs get distinct ranks, deterministically.
     order = sorted(range(n), key=lambda i: values[i])
     ranks = [0.0] * n
     for rank, i in enumerate(order):
