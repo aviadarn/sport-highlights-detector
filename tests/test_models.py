@@ -1,5 +1,5 @@
 from nba_highlights.models import (
-    VideoInfo, Shot, AudioSignals, ActionSignals, ShotScore,
+    VideoInfo, AudioSignals, ActionSignals, ShotScore,
     SignalBreakdown, Evidence, Highlight, Report,
 )
 
