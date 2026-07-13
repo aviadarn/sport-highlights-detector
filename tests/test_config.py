@@ -15,14 +15,19 @@ def test_defaults():
 
 def test_validate_rejects_unknown_backend():
     with pytest.raises(ConfigError):
-        Settings(action_backend="nope").validate()
+        Settings(action_backend="nope").check()
     with pytest.raises(ConfigError):
-        Settings(asr_backend="nope").validate()
+        Settings(asr_backend="nope").check()
 
 
 def test_validate_rejects_bad_weight_sum():
     with pytest.raises(ConfigError):
-        Settings(weights=Weights(wL=0.5, wP=0.5, wK=0.5)).validate()
+        Settings(weights=Weights(wL=0.5, wP=0.5, wK=0.5)).check()
+
+
+def test_check_rejects_bad_fusion_weight_sum():
+    with pytest.raises(ConfigError):
+        Settings(weights=Weights(wA=0.9, wV=0.9)).check()
 
 
 def test_from_env_overrides(monkeypatch):

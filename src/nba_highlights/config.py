@@ -32,7 +32,7 @@ class Settings(BaseModel):
     full_action: bool = False
     hype_lexicon: list[str] = DEFAULT_HYPE_LEXICON
 
-    def validate(self) -> None:
+    def check(self) -> None:
         if self.action_backend not in ACTION_BACKENDS:
             raise ConfigError(f"unknown action_backend: {self.action_backend!r}")
         if self.asr_backend not in ASR_BACKENDS:
@@ -55,5 +55,5 @@ class Settings(BaseModel):
             s.audio_gate = float(os.environ["AUDIO_GATE"])
         if "MAX_GAP_S" in os.environ:
             s.max_gap_s = float(os.environ["MAX_GAP_S"])
-        s.validate()
+        s.check()
         return s
