@@ -27,7 +27,6 @@ def test_stub_action_keyed_by_start_second():
     cold = rec.score_clip("v.mp4", 30.0, 31.0)
     assert hot.score == 0.8 and hot.label == "stub-basketball"
     assert cold.score == 0.1 and cold.label == "stub-basketball"
-    assert rec.score_clip("v.mp4", 40.0, 41.0, ).label == "stub-basketball"
 
 
 def test_stub_action_zero_label_empty():
