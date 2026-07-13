@@ -19,7 +19,10 @@ dev = ["pytest>=8.0", "ruff>=0.4"]
 media = ["scenedetect>=0.6.3", "yt-dlp>=2024.4.9"]
 audio = ["librosa>=0.10", "soundfile>=0.12"]
 asr = ["faster-whisper>=1.0"]
-action = ["torch>=2.2", "torchvision>=0.17", "transformers>=4.40", "av>=12.0", "pillow>=10.0"]
+# transformers pinned <5: v5 refactored VideoMAE attention to standard query/key/value
+# biases, but the MCG-NJU/videomae-base-finetuned-kinetics checkpoint stores the original
+# q_bias/v_bias scheme; 5.x drops them (random-init biases). 4.x loads it cleanly.
+action = ["torch>=2.2", "torchvision>=0.17", "transformers>=4.44,<5", "av>=12.0", "pillow>=10.0"]
 
 [project.scripts]
 highlights = "nba_highlights.cli:app"
