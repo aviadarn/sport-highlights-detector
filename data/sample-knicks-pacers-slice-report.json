@@ -1,0 +1,184 @@
+{
+  "video": {
+    "source": "work/slice.mp4",
+    "title": "",
+    "duration_s": 480.012867
+  },
+  "config": {
+    "weights": {
+      "wL": 0.4,
+      "wP": 0.3,
+      "wK": 0.3,
+      "wA": 0.5,
+      "wV": 0.5
+    },
+    "threshold": 0.5,
+    "audio_gate": 0.35,
+    "max_gap_s": 3.0,
+    "action_backend": "videomae",
+    "asr_backend": "faster-whisper",
+    "asr_model": "base",
+    "full_action": false
+  },
+  "generated_at": "2026-07-13T22:56:49.162792+00:00",
+  "highlights": [
+    {
+      "id": 0,
+      "start_s": 168.168,
+      "end_s": 187.5874,
+      "score": 0.515748466207431,
+      "signals": {
+        "audio": {
+          "loudness": 0.9038461538461539,
+          "prosody": 0.75,
+          "keywords": 0.4230769230769231
+        },
+        "action": {
+          "score": 0.31803539395332336,
+          "label": "playing basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 181.7,
+        "keywords": [],
+        "transcript": "part and Nimhard is running towards the bench telling them the challenge. This is why you say your challenges, guys. That's exactly right. They were already the ball was deemed to last touch Brunson's fingertips. Therefore, this is a successful challenge. Indiana basketball with 20 on the game clock. Each team with the timeout,"
+      },
+      "member_scenes": [
+        24
+      ]
+    },
+    {
+      "id": 1,
+      "start_s": 205.838967,
+      "end_s": 246.3461,
+      "score": 0.5871275518949215,
+      "signals": {
+        "audio": {
+          "loudness": 1.0,
+          "prosody": 0.6538461538461539,
+          "keywords": 0.9807692307692307
+        },
+        "action": {
+          "score": 0.28387048840522766,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 225.0,
+        "keywords": [
+          "three",
+          "steal"
+        ],
+        "transcript": "it in bounds, first of all, New York can be very aggressive going for a steal once the ball comes in because at the worst they call a foul and they take it out again. Surprise, though. New York's not going to put anybody on the ball or make that in bounds very easy. There comes chocolate and got it. Timeout, New York, 15 .3. Pacers by three in overtime. That didn't make any sense to me. First of all, the in bounds was too easy. And second of all, no defense right there at all. I'm the pick and roll."
+      },
+      "member_scenes": [
+        27,
+        28
+      ]
+    },
+    {
+      "id": 2,
+      "start_s": 310.9106,
+      "end_s": 364.0637,
+      "score": 0.7302931634279397,
+      "signals": {
+        "audio": {
+          "loudness": 0.8269230769230769,
+          "prosody": 0.9615384615384616,
+          "keywords": 0.5769230769230769
+        },
+        "action": {
+          "score": 0.6682786345481873,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 348.55,
+        "keywords": [
+          "three"
+        ],
+        "transcript": "the last shot. This is the all defensive team on the floor here for the Patriots being shepherd back on the floor. How about the minutes that he played in the second half on that comeback? Fridge is a winbound. 15 .3 and overtime. Here is Brunson. Take that back in hard. Down by three. Here is a three for the tie. Short. Caught by hook. Out the times. To tie. No. Rebound. Fought for loose. Bridges has got it. Clock is ticking. Out of bounds. It's Indiana's ball with point two to go."
+      },
+      "member_scenes": [
+        34,
+        35,
+        36
+      ]
+    },
+    {
+      "id": 3,
+      "start_s": 375.408367,
+      "end_s": 382.415367,
+      "score": 0.5532696811052469,
+      "signals": {
+        "audio": {
+          "loudness": 0.28846153846153844,
+          "prosody": 0.3076923076923077,
+          "keywords": 0.6153846153846154
+        },
+        "action": {
+          "score": 0.7142316699028015,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 382.05,
+        "keywords": [],
+        "transcript": "Indiana will take the"
+      },
+      "member_scenes": [
+        38
+      ]
+    },
+    {
+      "id": 4,
+      "start_s": 423.289533,
+      "end_s": 430.163067,
+      "score": 0.5529172950066052,
+      "signals": {
+        "audio": {
+          "loudness": 0.7307692307692307,
+          "prosody": 0.9038461538461539,
+          "keywords": 0.7115384615384616
+        },
+        "action": {
+          "score": 0.32891151309013367,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 423.6,
+        "keywords": [],
+        "transcript": "two thirty -five. It's one thing to come back from 14 down. But the Knicks scored six points. It's not like they went"
+      },
+      "member_scenes": [
+        45
+      ]
+    },
+    {
+      "id": 5,
+      "start_s": 468.2678,
+      "end_s": 479.712567,
+      "score": 0.5985916671844629,
+      "signals": {
+        "audio": {
+          "loudness": 0.9615384615384616,
+          "prosody": 0.8846153846153846,
+          "keywords": 0.8076923076923077
+        },
+        "action": {
+          "score": 0.3048756420612335,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 471.6,
+        "keywords": [],
+        "transcript": "Towns a ball right here. I would. You were just throwing salt in the wound here, coach. I don't know. Just giving the ball. That's exactly what it is. And Towns fired it. And"
+      },
+      "member_scenes": [
+        51
+      ]
+    }
+  ]
+}
