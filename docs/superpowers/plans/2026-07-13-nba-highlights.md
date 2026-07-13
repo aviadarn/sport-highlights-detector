@@ -427,7 +427,7 @@ git commit -m "feat: Transcript model + Transcriber/ActionRecognizer protocols"
   - `Weights{wL:float=0.4, wP:float=0.3, wK:float=0.3, wA:float=0.5, wV:float=0.5}`
   - `DEFAULT_HYPE_LEXICON: list[str]`
   - `ACTION_BACKENDS: set[str] = {"stub","videomae"}`, `ASR_BACKENDS: set[str] = {"stub","faster-whisper"}`
-  - `Settings{weights:Weights, threshold:float=0.5, audio_gate:float=0.35, max_gap_s:float=3.0, action_backend:str="stub", asr_backend:str="stub", asr_model:str="small", full_action:bool=False, hype_lexicon:list[str]}` with classmethod `from_env() -> Settings` and method `validate() -> None` (raises `ConfigError` on unknown backend or on weight groups not summing to 1.0 within 1e-6)
+  - `Settings{weights:Weights, threshold:float=0.5, audio_gate:float=0.35, max_gap_s:float=3.0, action_backend:str="stub", asr_backend:str="stub", asr_model:str="small", full_action:bool=False, hype_lexicon:list[str]}` with classmethod `from_env() -> Settings` and method `check() -> None` (raises `ConfigError` on unknown backend or on weight groups not summing to 1.0 within 1e-6). NOTE: named `check`, not `validate`, to avoid shadowing pydantic v2's deprecated `BaseModel.validate` classmethod.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -449,14 +449,14 @@ def test_defaults():
 
 def test_validate_rejects_unknown_backend():
     with pytest.raises(ConfigError):
-        Settings(action_backend="nope").validate()
+        Settings(action_backend="nope").check()
     with pytest.raises(ConfigError):
-        Settings(asr_backend="nope").validate()
+        Settings(asr_backend="nope").check()
 
 
 def test_validate_rejects_bad_weight_sum():
     with pytest.raises(ConfigError):
-        Settings(weights=Weights(wL=0.5, wP=0.5, wK=0.5)).validate()
+        Settings(weights=Weights(wL=0.5, wP=0.5, wK=0.5)).check()
 
 
 def test_from_env_overrides(monkeypatch):
@@ -511,7 +511,7 @@ class Settings(BaseModel):
     full_action: bool = False
     hype_lexicon: list[str] = DEFAULT_HYPE_LEXICON
 
-    def validate(self) -> None:
+    def check(self) -> None:
         if self.action_backend not in ACTION_BACKENDS:
             raise ConfigError(f"unknown action_backend: {self.action_backend!r}")
         if self.asr_backend not in ASR_BACKENDS:
@@ -534,7 +534,7 @@ class Settings(BaseModel):
             s.audio_gate = float(os.environ["AUDIO_GATE"])
         if "MAX_GAP_S" in os.environ:
             s.max_gap_s = float(os.environ["MAX_GAP_S"])
-        s.validate()
+        s.check()
         return s
 ```
 
@@ -1232,9 +1232,7 @@ BASKETBALL_CLASSES = {
     "shooting basketball",
     "playing basketball",
     "dribbling basketball",
-    "shooting goal (soccer)",  # excluded below; kept explicit for clarity
 }
-BASKETBALL_CLASSES.discard("shooting goal (soccer)")
 
 
 def score_from_probs(label_probs: dict[str, float]) -> ActionResult:
@@ -1294,23 +1292,32 @@ class VideoMAEActionRecognizer:
         return self._model, self._processor
 
     def _read_frames(self, video_path: str, start_s: float, end_s: float):
+        # Seek to start_s by timestamp and decode only frames inside the clip
+        # window, then pick the frame nearest each target sample time. Do NOT
+        # match on frame.index: that counts decoded frames from the file start,
+        # so a clip at t=1400s would (wrongly, and slowly) decode from 0.
         import av
         import numpy as np
-        times = frame_times(start_s, end_s, self._num_frames)
+        targets = frame_times(start_s, end_s, self._num_frames)
         container = av.open(video_path)
         stream = container.streams.video[0]
-        fps = float(stream.average_rate or 25)
-        frames: list = []
-        wanted = [int(t * fps) for t in times]
+        if stream.time_base:
+            container.seek(int(start_s / stream.time_base), stream=stream,
+                           backward=True)
+        collected: list[tuple[float, "np.ndarray"]] = []
         for frame in container.decode(video=0):
-            if frame.index in wanted:
-                frames.append(frame.to_ndarray(format="rgb24"))
-            if len(frames) >= self._num_frames:
+            t = float(frame.time) if frame.time is not None else 0.0
+            if t < start_s:
+                continue
+            if t > end_s:
                 break
+            collected.append((t, np.asarray(frame.to_ndarray(format="rgb24"))))
         container.close()
-        while len(frames) < self._num_frames and frames:
-            frames.append(frames[-1])
-        return [np.asarray(f) for f in frames]
+        if not collected:
+            return []
+        # For each evenly-spaced target time, take the nearest decoded frame.
+        return [min(collected, key=lambda ct: abs(ct[0] - target))[1]
+                for target in targets]
 
     def score_clip(self, video_path: str, start_s: float,
                    end_s: float) -> ActionResult:
@@ -1650,7 +1657,7 @@ def run_pipeline(
     audio_loader=loudness.load_audio,
 ) -> Report
 ```
-  Steps in order: `settings.validate()`; `ingest` → `(video, audio)`; `probe_duration`; `detect_scenes`; `transcriber.transcribe(audio)`; `audio_loader(audio)` → `(samples, sr)`; `rms_envelope`; per shot compute raw loudness/prosody/keywords; `percentile_normalize` each of the three raw arrays; compute `audio_composite` per shot; **two-pass gate** — for shots with `audio_composite >= settings.audio_gate` (or all shots if `settings.full_action`) call `action.score_clip`, else action score `0.0`/label `""`; `fuse`; build `ShotScore` list; `merge_shots`; `select_highlights`; assemble `Report` with `VideoInfo`, a `config` dict (`weights`, `threshold`, `audio_gate`, `max_gap_s`, `action_backend`, `asr_backend`, `asr_model`, `full_action`), `generated_at`, `highlights`.
+  Steps in order: `settings.check()`; `ingest` → `(video, audio)`; `probe_duration`; `detect_scenes`; `transcriber.transcribe(audio)`; `audio_loader(audio)` → `(samples, sr)`; `rms_envelope`; per shot compute raw loudness/prosody/keywords; `percentile_normalize` each of the three raw arrays; compute `audio_composite` per shot; **two-pass gate** — for shots with `audio_composite >= settings.audio_gate` (or all shots if `settings.full_action`) call `action.score_clip`, else action score `0.0`/label `""`; `fuse`; build `ShotScore` list; `merge_shots`; `select_highlights`; assemble `Report` with `VideoInfo`, a `config` dict (`weights`, `threshold`, `audio_gate`, `max_gap_s`, `action_backend`, `asr_backend`, `asr_model`, `full_action`), `generated_at`, `highlights`.
   - Per-shot scoring is wrapped in try/except: a shot that raises during action or audio scoring is logged via `logging.getLogger(__name__).warning(...)` and scored 0, never aborting the run.
 
 - [ ] **Step 1: Write the failing test**
@@ -1762,7 +1769,7 @@ def run_pipeline(
     detector_fn=scenes._default_detector,
     audio_loader=loudness.load_audio,
 ) -> Report:
-    settings.validate()
+    settings.check()
     video_path, audio_path = media.ingest(source, workdir,
                                           downloader=downloader, runner=runner)
     duration_s = media.probe_duration(video_path, runner=runner)
@@ -2104,7 +2111,7 @@ def analyze(
     if asr_backend is not None:
         settings.asr_backend = asr_backend
     settings.full_action = full_action
-    settings.validate()
+    settings.check()
 
     transcriber, action = _build_backends(settings)
     report = run_pipeline(
