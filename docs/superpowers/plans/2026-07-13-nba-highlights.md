@@ -1292,23 +1292,32 @@ class VideoMAEActionRecognizer:
         return self._model, self._processor
 
     def _read_frames(self, video_path: str, start_s: float, end_s: float):
+        # Seek to start_s by timestamp and decode only frames inside the clip
+        # window, then pick the frame nearest each target sample time. Do NOT
+        # match on frame.index: that counts decoded frames from the file start,
+        # so a clip at t=1400s would (wrongly, and slowly) decode from 0.
         import av
         import numpy as np
-        times = frame_times(start_s, end_s, self._num_frames)
+        targets = frame_times(start_s, end_s, self._num_frames)
         container = av.open(video_path)
         stream = container.streams.video[0]
-        fps = float(stream.average_rate or 25)
-        frames: list = []
-        wanted = [int(t * fps) for t in times]
+        if stream.time_base:
+            container.seek(int(start_s / stream.time_base), stream=stream,
+                           backward=True)
+        collected: list[tuple[float, "np.ndarray"]] = []
         for frame in container.decode(video=0):
-            if frame.index in wanted:
-                frames.append(frame.to_ndarray(format="rgb24"))
-            if len(frames) >= self._num_frames:
+            t = float(frame.time) if frame.time is not None else 0.0
+            if t < start_s:
+                continue
+            if t > end_s:
                 break
+            collected.append((t, np.asarray(frame.to_ndarray(format="rgb24"))))
         container.close()
-        while len(frames) < self._num_frames and frames:
-            frames.append(frames[-1])
-        return [np.asarray(f) for f in frames]
+        if not collected:
+            return []
+        # For each evenly-spaced target time, take the nearest decoded frame.
+        return [min(collected, key=lambda ct: abs(ct[0] - target))[1]
+                for target in targets]
 
     def score_clip(self, video_path: str, start_s: float,
                    end_s: float) -> ActionResult:
