@@ -11,6 +11,7 @@ DEFAULT_HYPE_LEXICON = [
 
 ACTION_BACKENDS = {"stub", "videomae"}
 ASR_BACKENDS = {"stub", "faster-whisper"}
+FUSION_BACKENDS = {"weighted", "learned"}
 
 
 class Weights(BaseModel):
@@ -30,6 +31,8 @@ class Settings(BaseModel):
     asr_backend: str = "stub"
     asr_model: str = "small"
     full_action: bool = False
+    fusion: str = "weighted"
+    fusion_model: str = ""
     hype_lexicon: list[str] = DEFAULT_HYPE_LEXICON
 
     def check(self) -> None:
@@ -37,6 +40,8 @@ class Settings(BaseModel):
             raise ConfigError(f"unknown action_backend: {self.action_backend!r}")
         if self.asr_backend not in ASR_BACKENDS:
             raise ConfigError(f"unknown asr_backend: {self.asr_backend!r}")
+        if self.fusion not in FUSION_BACKENDS:
+            raise ConfigError(f"unknown fusion: {self.fusion!r}")
         w = self.weights
         if abs((w.wL + w.wP + w.wK) - 1.0) > 1e-6:
             raise ConfigError("audio weights wL+wP+wK must sum to 1.0")
@@ -55,5 +60,7 @@ class Settings(BaseModel):
             s.audio_gate = float(os.environ["AUDIO_GATE"])
         if "MAX_GAP_S" in os.environ:
             s.max_gap_s = float(os.environ["MAX_GAP_S"])
+        s.fusion = os.environ.get("FUSION", s.fusion)
+        s.fusion_model = os.environ.get("FUSION_MODEL", s.fusion_model)
         s.check()
         return s
