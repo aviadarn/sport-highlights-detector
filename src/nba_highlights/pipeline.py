@@ -5,7 +5,7 @@ from nba_highlights import media, scenes
 from nba_highlights.audio import loudness, prosody, keywords
 from nba_highlights.config import Settings
 from nba_highlights.features import ShotFeatures
-from nba_highlights.fuse import percentile_normalize, audio_composite, fuse
+from nba_highlights.fuse import percentile_normalize, audio_composite
 from nba_highlights.interfaces import ActionRecognizer, Transcriber
 from nba_highlights.merge import merge_shots
 from nba_highlights.models import (
