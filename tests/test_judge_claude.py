@@ -41,7 +41,8 @@ def test_claude_judge_builds_request_and_maps_verdict(tmp_path):
     assert image_blocks[0]["source"]["data"] == base64.standard_b64encode(b"\xff\xd8\xff").decode()
     assert "what a dunk" in text_blocks[0]["text"]
     # no sampling params / budget_tokens (400 on Claude 4.x)
-    assert "temperature" not in rec and "top_p" not in rec and "thinking" not in rec
+    for banned in ("temperature", "top_p", "top_k", "thinking", "budget_tokens"):
+        assert banned not in rec
 
 
 def test_load_judge_backends():
