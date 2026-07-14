@@ -24,6 +24,9 @@ asr = ["faster-whisper>=1.0"]
 # biases, but the MCG-NJU/videomae-base-finetuned-kinetics checkpoint stores the original
 # q_bias/v_bias scheme; 5.x drops them (random-init biases). 4.x loads it cleanly.
 action = ["torch>=2.2", "torchvision>=0.17", "transformers>=4.44,<5", "av>=12.0", "pillow>=10.0"]
+# First Claude integration. anthropic is lazy-imported inside ClaudeHighlightJudge;
+# the default [dev] suite never imports it (the Claude backend test injects a fake client).
+judge = ["anthropic>=0.40"]
 
 [project.scripts]
 highlights = "nba_highlights.cli:app"
