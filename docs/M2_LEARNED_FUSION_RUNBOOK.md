@@ -14,7 +14,11 @@
    Aim for 3–5 fully labeled games.
 3. **Train:** `python scripts/train_fusion.py --pair feats1.jsonl truth1.json
    --pair feats2.jsonl truth2.json --out fusion.joblib`
-   Prints `{"n", "positives", "cv_f1"}` — `cv_f1` is mean leave-one-game-out F1.
+   Prints `{"n", "positives", "cv_f1", "cv"}`. `cv_f1` is mean leave-one-game-out
+   F1; with >=2 games the `cv` block reports per-game and mean shot-level
+   precision/recall/F1 for the **weighted baseline vs the learned model**
+   (each game held out, model trained on the rest) — that comparison is the
+   read on whether learned fusion is actually beating the hand-weighted default.
 4. **Apply:** `highlights analyze GAME.mp4 --fusion learned --fusion-model fusion.joblib --out r.json`
 5. **Measure:** `highlights eval --report r.json --truth held_out_truth.json`
 
@@ -31,3 +35,7 @@
   with. `action_score` is 0.0 for shots below the gate, so a different gate
   shifts the feature distribution and the learned model sees out-of-distribution
   inputs. Retrain if you change the gate.
+- Highlights are a small fraction of shots (~5%), so the model uses
+  `class_weight="balanced"`. Without it, logistic regression collapses to
+  predict-negative and held-out recall craters — the `cv` report will show it
+  if a future change regresses this.
