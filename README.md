@@ -70,6 +70,29 @@ highlights eval --report r3.json --truth truth3.json --out eval3.json
 `--fusion learned` falls back to weighted fusion if the model path is missing.
 Feature columns are frozen in `nba_highlights.features.FEATURE_NAMES`.
 
+## LLM judge for labels (M3)
+
+Hand-labeling games doesn't scale. A Claude vision judge labels a detector run's
+candidates from their keyframes + commentary, producing the same truth JSON the
+learned-fusion loop consumes:
+
+```bash
+# 1. Analyze a local game with --emit-features (see Learned fusion), keeping the video
+highlights analyze GAME.mp4 --out report.json --emit-features feats.jsonl \
+  --action-backend videomae --asr-backend faster-whisper
+# 2. Judge the candidates -> GroundTruth (needs the judge extra + ANTHROPIC_API_KEY)
+highlights judge --report report.json --video GAME.mp4 --out truth.json \
+  --backend claude --model claude-opus-4-8 --min-confidence 0.6
+# 3. Calibrate: compare judge labels to a human-labeled game before trusting at scale
+highlights judge-agreement --judged truth.json --human human_truth.json --out agree.json
+```
+
+`--backend stub` runs offline (no API). The judge writes the same `GroundTruth`
+shape as `highlights label`, so `train_fusion.py` and `highlights eval` consume
+it unchanged. **Validate agreement against a human-labeled game (F1/κ) before
+using judge labels to train, and keep one human-labeled game as the authoritative
+eval holdout.**
+
 ## Config (env vars)
 
 | Var | Default | Meaning |
