@@ -1,6 +1,7 @@
 import argparse
 import json
 
+from nba_highlights.training.evaluate import cross_validate
 from nba_highlights.training.train import train_model
 
 
@@ -11,7 +12,12 @@ def main() -> None:
     ap.add_argument("--out", required=True, help="output model path (.joblib)")
     ap.add_argument("--iou", type=float, default=0.5)
     args = ap.parse_args()
-    metrics = train_model([tuple(p) for p in args.pair], args.out, args.iou)
+    pairs = [tuple(p) for p in args.pair]
+    metrics = train_model(pairs, args.out, args.iou)
+    # Leave-one-game-out comparison of the learned model vs the weighted baseline
+    # (needs >=2 games so at least one can be held out).
+    if len(pairs) >= 2:
+        metrics["cv"] = cross_validate(pairs, iou_threshold=args.iou)
     print(json.dumps(metrics, indent=2))
 
 
