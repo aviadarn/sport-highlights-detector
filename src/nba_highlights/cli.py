@@ -5,6 +5,9 @@ import typer
 
 from nba_highlights.config import Settings
 from nba_highlights.eval import GroundTruth, TruthSegment, score_report
+from nba_highlights.judge.factory import load_judge
+from nba_highlights.judge.labeling import build_judge_inputs, verdicts_to_truth
+from nba_highlights.judge.agreement import agreement
 from nba_highlights.scoring.factory import load_scorer
 from nba_highlights.models import Report
 from nba_highlights.pipeline import run_pipeline
@@ -102,3 +105,51 @@ def label(
     with open(out, "w") as f:
         f.write(gt.model_dump_json(indent=2))
     typer.echo(f"wrote {out} ({len(segs)} candidate highlights to prune)")
+
+
+@app.command()
+def judge(
+    report: str = typer.Option(..., help="Path to a report.json"),
+    video: str = typer.Option(..., help="Path to the local video the report was built from"),
+    out: str = typer.Option(..., help="Output GroundTruth truth JSON"),
+    workdir: str = typer.Option("./judge-work", help="Scratch dir for judge keyframes"),
+    backend: str = typer.Option(None, help="stub | claude"),
+    model: str = typer.Option(None, help="Claude model (default claude-opus-4-8)"),
+    min_confidence: float = typer.Option(0.6, help="Keep verdicts with confidence >= this"),
+    frames_per_clip: int = typer.Option(3, help="Keyframes sampled per candidate"),
+):
+    settings = Settings.from_env()
+    if backend is not None:
+        settings.judge_backend = backend
+    if model is not None:
+        settings.judge_model = model
+    settings.check()
+
+    with open(report) as f:
+        rep = Report.model_validate_json(f.read())
+    judge_backend = load_judge(settings.judge_backend, settings.judge_model)
+    inputs = build_judge_inputs(rep, video, workdir, frames_per_clip=frames_per_clip)
+    verdicts = [judge_backend.judge(clip) for clip in inputs]
+    gt = verdicts_to_truth(rep, verdicts, min_confidence=min_confidence)
+    with open(out, "w") as f:
+        f.write(gt.model_dump_json(indent=2))
+    typer.echo(f"wrote {out} ({len(gt.highlights)}/{len(rep.highlights)} judged highlights)")
+
+
+@app.command(name="judge-agreement")
+def judge_agreement(
+    judged: str = typer.Option(..., help="Judge-produced GroundTruth JSON"),
+    human: str = typer.Option(..., help="Human-labeled GroundTruth JSON"),
+    out: str = typer.Option("agreement.json", help="Output agreement JSON"),
+    iou_threshold: float = typer.Option(0.5, help="IoU match threshold"),
+):
+    with open(judged) as f:
+        j = GroundTruth.model_validate_json(f.read())
+    with open(human) as f:
+        h = GroundTruth.model_validate_json(f.read())
+    result = agreement(j, h, iou_threshold=iou_threshold)
+    with open(out, "w") as f:
+        f.write(result.model_dump_json(indent=2))
+    typer.echo(f"precision={result.precision:.3f} recall={result.recall:.3f} "
+               f"f1={result.f1:.3f} kappa={result.kappa:.3f} "
+               f"(tp={result.tp} fp={result.fp} fn={result.fn})")
