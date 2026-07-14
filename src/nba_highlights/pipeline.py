@@ -4,12 +4,14 @@ import subprocess
 from nba_highlights import media, scenes
 from nba_highlights.audio import loudness, prosody, keywords
 from nba_highlights.config import Settings
-from nba_highlights.fuse import percentile_normalize, audio_composite, fuse
+from nba_highlights.features import ShotFeatures
+from nba_highlights.fuse import percentile_normalize, audio_composite
 from nba_highlights.interfaces import ActionRecognizer, Transcriber
 from nba_highlights.merge import merge_shots
 from nba_highlights.models import (
     AudioSignals, ActionSignals, ShotScore, Report, VideoInfo,
 )
+from nba_highlights.scoring.weighted import WeightedScorer
 from nba_highlights.select import select_highlights
 
 log = logging.getLogger(__name__)
@@ -28,8 +30,12 @@ def run_pipeline(
     runner=subprocess.run,
     detector_fn=scenes._default_detector,
     audio_loader=loudness.load_audio,
+    scorer=None,
+    emit_features_path: str | None = None,
 ) -> Report:
     settings.check()
+    if scorer is None:
+        scorer = WeightedScorer(settings.weights)
     video_path, audio_path = media.ingest(source, workdir,
                                           downloader=downloader, runner=runner)
     duration_s = media.probe_duration(video_path, runner=runner)
@@ -64,6 +70,7 @@ def run_pipeline(
     pros_n = percentile_normalize(raw_pros)
     kw_n = percentile_normalize(raw_kw)
 
+    feats_list: list[ShotFeatures] = []
     shot_scores: list[ShotScore] = []
     for i, shot in enumerate(shots):
         comp = audio_composite(loud_n[i], pros_n[i], kw_n[i], settings.weights)
@@ -74,7 +81,14 @@ def run_pipeline(
                 act_score, act_label = res.score, res.label
             except Exception as e:
                 log.warning("action scoring failed for scene %s: %s", shot.scene_id, e)
-        fused = fuse(comp, act_score, settings.weights)
+        feats = ShotFeatures(
+            scene_id=shot.scene_id, start_s=shot.start_s, end_s=shot.end_s,
+            loudness_n=loud_n[i], prosody_n=pros_n[i], keywords_n=kw_n[i],
+            keyword_count=float(len(matched[i])), action_score=act_score,
+            shot_duration_s=max(0.0, shot.end_s - shot.start_s),
+            rel_position=(shot.start_s / duration_s) if duration_s > 0 else 0.0)
+        feats_list.append(feats)
+        fused = scorer.score(feats)
         shot_scores.append(ShotScore(
             scene_id=shot.scene_id, start_s=shot.start_s, end_s=shot.end_s,
             audio=AudioSignals(loudness=loud_n[i], prosody=pros_n[i], keywords=kw_n[i]),
@@ -82,6 +96,11 @@ def run_pipeline(
             audio_composite=comp, fused=fused,
             matched_keywords=matched[i], peak_loudness_s=peak_times[i],
             transcript=texts[i]))
+
+    if emit_features_path:
+        with open(emit_features_path, "w") as fh:
+            for f in feats_list:
+                fh.write(f.model_dump_json() + "\n")
 
     merged = merge_shots(shot_scores, settings.threshold, settings.max_gap_s)
     highlights = select_highlights(merged, settings.threshold)
@@ -95,6 +114,7 @@ def run_pipeline(
         "asr_backend": settings.asr_backend,
         "asr_model": settings.asr_model,
         "full_action": settings.full_action,
+        "fusion": settings.fusion,
     }
     return Report(
         video=VideoInfo(source=source, title=title, duration_s=duration_s),

@@ -49,6 +49,27 @@ python3 -m venv .venv && .venv/bin/pip install -U pip
 ```
 Reports precision/recall/F1 by temporal IoU ≥ 0.5.
 
+## Learned fusion (M2)
+
+The default fusion is hand-weighted. To train a data-driven highlight classifier:
+
+```bash
+# 1. Emit per-shot features while analyzing labeled games
+highlights analyze GAME1.mp4 --out r1.json --emit-features f1.jsonl
+# 2. Seed candidate labels from a run, then hand-prune the JSON to real highlights
+highlights label --report r1.json --out truth1.json --min-score 0.4
+# 3. Train (needs the train extra: pip install -e '.[train]')
+python scripts/train_fusion.py --pair f1.jsonl truth1.json \
+                               --pair f2.jsonl truth2.json --out fusion.joblib
+# 4. Use the learned model
+highlights analyze GAME3.mp4 --out r3.json --fusion learned --fusion-model fusion.joblib
+# 5. Measure against held-out truth
+highlights eval --report r3.json --truth truth3.json --out eval3.json
+```
+
+`--fusion learned` falls back to weighted fusion if the model path is missing.
+Feature columns are frozen in `nba_highlights.features.FEATURE_NAMES`.
+
 ## Config (env vars)
 
 | Var | Default | Meaning |

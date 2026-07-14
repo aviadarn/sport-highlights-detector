@@ -38,3 +38,17 @@ def test_from_env_overrides(monkeypatch):
     assert s.action_backend == "videomae"
     assert s.asr_backend == "faster-whisper"
     assert s.threshold == 0.7
+
+
+def test_fusion_defaults_and_validation():
+    s = Settings()
+    assert s.fusion == "weighted" and s.fusion_model == ""
+    with pytest.raises(ConfigError):
+        Settings(fusion="bogus").check()
+
+
+def test_from_env_reads_fusion(monkeypatch):
+    monkeypatch.setenv("FUSION", "learned")
+    monkeypatch.setenv("FUSION_MODEL", "/tmp/m.joblib")
+    s = Settings.from_env()
+    assert s.fusion == "learned" and s.fusion_model == "/tmp/m.joblib"

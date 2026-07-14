@@ -1,0 +1,241 @@
+{
+  "video": {
+    "source": "work/slice.mp4",
+    "title": "",
+    "duration_s": 480.012867
+  },
+  "config": {
+    "weights": {
+      "wL": 0.4,
+      "wP": 0.3,
+      "wK": 0.3,
+      "wA": 0.5,
+      "wV": 0.5
+    },
+    "threshold": 0.5,
+    "audio_gate": 0.35,
+    "max_gap_s": 3.0,
+    "action_backend": "videomae",
+    "asr_backend": "faster-whisper",
+    "asr_model": "base",
+    "full_action": false
+  },
+  "generated_at": "2026-07-13T23:05:38.546743+00:00",
+  "highlights": [
+    {
+      "id": 0,
+      "start_s": 0.0,
+      "end_s": 25.492133,
+      "score": 0.6727530117218311,
+      "signals": {
+        "audio": {
+          "loudness": 0.3269230769230769,
+          "prosody": 1.0,
+          "keywords": 0.8461538461538461
+        },
+        "action": {
+          "score": 0.6608906388282776,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 0.6,
+        "keywords": [
+          "three",
+          "dunk"
+        ],
+        "transcript": "Last three baskets here at the game. Haliburton, a wide open three. Topping runs in untouched. For the dunk, Ronson, able to split two defenders. As Reggie said, brings a ball beneath them and gets it up over the top. And then Nimhard on the cut, great pass from Haliburton. Neither team can get it stopped right"
+      },
+      "member_scenes": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": 1,
+      "start_s": 117.4173,
+      "end_s": 125.992533,
+      "score": 0.51803856079395,
+      "signals": {
+        "audio": {
+          "loudness": 0.7115384615384616,
+          "prosody": 0.09615384615384616,
+          "keywords": 0.3269230769230769
+        },
+        "action": {
+          "score": 0.6245386600494385,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 118.9,
+        "keywords": [],
+        "transcript": "Thank God they didn't have this back when we were playing coach. Oh, my God. Thank God they didn't"
+      },
+      "member_scenes": [
+        19
+      ]
+    },
+    {
+      "id": 2,
+      "start_s": 168.168,
+      "end_s": 187.5874,
+      "score": 0.5003190737504226,
+      "signals": {
+        "audio": {
+          "loudness": 0.9038461538461539,
+          "prosody": 0.75,
+          "keywords": 0.4230769230769231
+        },
+        "action": {
+          "score": 0.28717660903930664,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 181.7,
+        "keywords": [],
+        "transcript": "part and Nimhard is running towards the bench telling them the challenge. This is why you say your challenges, guys. That's exactly right. They were already the ball was deemed to last touch Brunson's fingertips. Therefore, this is a successful challenge. Indiana basketball with 20 on the game clock. Each team with the timeout,"
+      },
+      "member_scenes": [
+        24
+      ]
+    },
+    {
+      "id": 3,
+      "start_s": 205.838967,
+      "end_s": 272.739133,
+      "score": 0.7373074297721569,
+      "signals": {
+        "audio": {
+          "loudness": 1.0,
+          "prosody": 0.6538461538461539,
+          "keywords": 0.9807692307692307
+        },
+        "action": {
+          "score": 0.5842302441596985,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 225.0,
+        "keywords": [
+          "three",
+          "steal"
+        ],
+        "transcript": "it in bounds, first of all, New York can be very aggressive going for a steal once the ball comes in because at the worst they call a foul and they take it out again. Surprise, though. New York's not going to put anybody on the ball or make that in bounds very easy. There comes chocolate and got it. Timeout, New York, 15 .3. Pacers by three in overtime. That didn't make any sense to me. First of all, the in bounds was too easy. And second of all, no defense right there at all. I'm the pick and roll. And if your bridge is coming over there right there, where was the deepest coach? No, there's no lack of defense. Mitchell Robinson's in there for defense and didn't do anything. Oh, and got foul, too, by the way. And got foul. They didn't call it. That should have been an end one and top and have a chance to"
+      },
+      "member_scenes": [
+        27,
+        28,
+        29
+      ]
+    },
+    {
+      "id": 4,
+      "start_s": 320.5202,
+      "end_s": 364.0637,
+      "score": 0.6873424282440772,
+      "signals": {
+        "audio": {
+          "loudness": 0.9807692307692307,
+          "prosody": 0.7884615384615384,
+          "keywords": 0.8846153846153846
+        },
+        "action": {
+          "score": 0.48045408725738525,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 330.7,
+        "keywords": [
+          "three"
+        ],
+        "transcript": "he played in the second half on that comeback? Fridge is a winbound. 15 .3 and overtime. Here is Brunson. Take that back in hard. Down by three. Here is a three for the tie. Short. Caught by hook. Out the times. To tie. No. Rebound. Fought for loose. Bridges has got it. Clock is ticking. Out of bounds. It's Indiana's ball with point two to go."
+      },
+      "member_scenes": [
+        35,
+        36
+      ]
+    },
+    {
+      "id": 5,
+      "start_s": 389.856133,
+      "end_s": 411.177433,
+      "score": 0.5676907069407977,
+      "signals": {
+        "audio": {
+          "loudness": 0.9423076923076923,
+          "prosody": 0.5,
+          "keywords": 0.6538461538461539
+        },
+        "action": {
+          "score": 0.41230449080467224,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 393.15,
+        "keywords": [
+          "unbelievable"
+        ],
+        "transcript": "by 14 points with two thirty -five left in the fourth quarter and came back on the long run. Now it's time for the change shooting of Neesmith and Haliburton watching it again here at the very end of the elbow and hand of Bridges. Have we seen some unbelievable comebacks"
+      },
+      "member_scenes": [
+        41,
+        42
+      ]
+    },
+    {
+      "id": 6,
+      "start_s": 423.289533,
+      "end_s": 430.163067,
+      "score": 0.6797172807730161,
+      "signals": {
+        "audio": {
+          "loudness": 0.7307692307692307,
+          "prosody": 0.9038461538461539,
+          "keywords": 0.7115384615384616
+        },
+        "action": {
+          "score": 0.5825114846229553,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 423.6,
+        "keywords": [],
+        "transcript": "two thirty -five. It's one thing to come back from 14 down. But the Knicks scored six points. It's not like they went"
+      },
+      "member_scenes": [
+        45
+      ]
+    },
+    {
+      "id": 7,
+      "start_s": 468.2678,
+      "end_s": 479.712567,
+      "score": 0.6803376493545679,
+      "signals": {
+        "audio": {
+          "loudness": 0.9615384615384616,
+          "prosody": 0.8846153846153846,
+          "keywords": 0.8076923076923077
+        },
+        "action": {
+          "score": 0.4683676064014435,
+          "label": "dunking basketball"
+        }
+      },
+      "evidence": {
+        "peak_loudness_s": 471.6,
+        "keywords": [],
+        "transcript": "Towns a ball right here. I would. You were just throwing salt in the wound here, coach. I don't know. Just giving the ball. That's exactly what it is. And Towns fired it. And"
+      },
+      "member_scenes": [
+        51
+      ]
+    }
+  ]
+}
