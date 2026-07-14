@@ -53,7 +53,8 @@ def cross_validate(pairs: list[tuple[str, str]], iou_threshold: float = 0.5,
 
         learned_m = None
         if len(set(y_train)) == 2:  # need both classes to fit
-            clf = LogisticRegression(max_iter=1000, C=1.0).fit(x_train, y_train)
+            clf = LogisticRegression(max_iter=1000, C=1.0,
+                                     class_weight="balanced").fit(x_train, y_train)
             learned_pred = list(clf.predict([to_vector(f) for f in feats_h]))
             learned_m = _prf(y_h, learned_pred)
 
