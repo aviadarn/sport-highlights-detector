@@ -1,7 +1,7 @@
 import subprocess
 import numpy as np
 from nba_highlights.pipeline import run_pipeline
-from nba_highlights.config import Settings, Weights
+from nba_highlights.config import Settings
 from nba_highlights.transcribe.stub import StubTranscriber
 from nba_highlights.action.stub import StubActionRecognizer
 from nba_highlights.scoring.stub import StubScorer
