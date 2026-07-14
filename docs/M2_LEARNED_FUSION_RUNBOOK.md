@@ -26,3 +26,8 @@
 - Start with logistic regression (interpretable, tiny-data friendly). Swap in
   `HistGradientBoostingClassifier` in `training/train.py` once you have more
   labeled games.
+- Keep `AUDIO_GATE` (the two-pass action gate) the SAME between the
+  `--emit-features` run you train on and the `--fusion learned` run you serve
+  with. `action_score` is 0.0 for shots below the gate, so a different gate
+  shifts the feature distribution and the learned model sees out-of-distribution
+  inputs. Retrain if you change the gate.
